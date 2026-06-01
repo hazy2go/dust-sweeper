@@ -60,7 +60,7 @@ export default function FeesPage() {
     <main className="sweep">
       <header className="sweep__top">
         <Link href="/sweep" className="sweep__brand serif">
-          ← Just Sweep It
+          <span className="seal seal--sm">掃</span> ← Just Sweep It
         </Link>
         <span className="sweep__feeslink">Fees & recovery</span>
       </header>

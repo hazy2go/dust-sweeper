@@ -153,3 +153,53 @@ button{font:inherit;cursor:pointer}
 .demo-banner__exit{margin-left:auto;border:1px solid var(--jade);background:transparent;color:var(--jade);
   border-radius:3px;padding:5px 12px;font-size:12px;font-weight:700}
 .sweep__hintbox{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+
+/* ---------- shared atmosphere + chrome ---------- */
+main{position:relative;z-index:1}
+.atmo{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.atmo__vig{position:absolute;inset:0;
+  background:radial-gradient(125% 100% at 50% 26%, transparent 50%, rgba(120,96,56,.14) 100%)}
+.atmo__vig::after{content:"";position:absolute;inset:-150%;opacity:.45;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
+.atmo__kanji{position:absolute;right:-8vw;top:50%;transform:translateY(-50%);
+  font-size:min(108vh,94vw);line-height:.8;color:var(--ink);opacity:.05;user-select:none}
+
+/* hanko seal */
+.seal{width:48px;height:48px;display:grid;place-items:center;background:var(--shu);color:var(--paper-hi);
+  border-radius:6px;font-family:"Yuji Mai",serif;font-size:30px;line-height:1;transform:rotate(-3deg);
+  box-shadow:0 2px 14px rgba(193,67,47,.3);flex:none}
+.seal--sm{width:26px;height:26px;font-size:16px;border-radius:4px;display:inline-grid}
+.sweep__brand{display:inline-flex;align-items:center;gap:10px}
+
+/* ---------- landing hero ---------- */
+.home{max-width:880px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;
+  padding:max(26px,env(safe-area-inset-top)) max(28px,7vw) max(26px,env(safe-area-inset-bottom))}
+.home__top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.home__meta{text-align:right;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim)}
+.home__meta .jp{display:block;font-family:"Zen Kaku Gothic New";color:var(--ink-faint);
+  letter-spacing:.2em;text-transform:none;font-size:11px;margin-bottom:3px}
+.home__hero{flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;padding:48px 0}
+.home__eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-dim)}
+.home__eyebrow .jp{color:var(--shu-soft);letter-spacing:.14em;text-transform:none;font-size:14px}
+.home__wordmark{font-weight:600;font-size:clamp(3rem,15vw,7rem);line-height:.94;letter-spacing:-.01em;color:var(--ink)}
+.home__wordmark span{display:block}
+.home__it{color:var(--shu)}
+.home__rule{width:64px;height:2px;background:var(--shu)}
+.home__lede{max-width:46ch;font-size:clamp(1rem,3.6vw,1.12rem);color:var(--ink-dim);line-height:1.8}
+.home__lede b{color:var(--ink);font-weight:500}
+.home__cta{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.home__demo{font-size:13px;color:var(--ink-dim);border-bottom:1px solid var(--line);padding-bottom:1px}
+.home__demo:hover{color:var(--shu);border-color:var(--shu)}
+.home__chains{display:flex;gap:8px 18px;flex-wrap:wrap;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-faint);font-family:"Shippori Mincho",serif}
+.home__chains span{display:inline-flex;align-items:center;gap:18px}
+.home__chains span::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--shu);opacity:.5}
+.home__foot{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);
+  padding-top:18px;border-top:1px solid var(--line)}
+.home__foot .jp{text-transform:none;letter-spacing:.1em;color:var(--ink-dim);font-family:"Zen Kaku Gothic New"}
+
+@media (max-width:560px){
+  .home__cta{align-items:flex-start;flex-direction:column;gap:14px}
+  .btn--primary{width:auto}
+}

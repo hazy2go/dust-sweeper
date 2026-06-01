@@ -106,7 +106,7 @@ export default function SweepPage() {
     <main className="sweep">
       <header className="sweep__top">
         <Link href="/" className="sweep__brand serif">
-          Just Sweep It
+          <span className="seal seal--sm">掃</span> Just Sweep It
         </Link>
         <Link href="/fees" className="sweep__feeslink">
           Fees & recovery →

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/providers/providers';
+import { Atmosphere } from '@/components/Atmosphere';
 
 export const metadata: Metadata = {
   title: 'Just Sweep It — cross-chain consolidation · built on SODAX',
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <Atmosphere />
         <Providers>{children}</Providers>
       </body>
     </html>
