@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>JUST SWEEP IT — cross-chain consolidation · built on SODAX</title>
+<meta name="description" content="Your crypto is scattered across 18 networks. Soon: one sweep brings every fragment home. EVM + Solana. Built on SODAX. Join the early-access list." />
+<meta name="theme-color" content="#07070c" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="JUST SWEEP IT — one sweep, every chain" />
+<meta property="og:description" content="Tiny balances stranded across 18 networks. Soon you sweep them all into one token, one chain, one tap. Built on SODAX." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=Space+Mono:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --void:#07070c;
+  --ink:#0c0c15;
+  --panel:rgba(14,14,26,.62);
+  --line:rgba(120,130,180,.16);
+  --mag:#ff2d7e;      /* heart pink */
+  --mag-soft:#ff5c9b;
+  --cyan:#21e6ff;
+  --red:#ff2433;      /* akira red */
+  --amber:#ffd23f;
+  --white:#f3f4ff;
+  --dim:#9aa0c4;
+  --dimmer:#666c92;
+  --grid:rgba(33,230,255,.10);
+  --grid-hot:rgba(255,45,126,.16);
+  --glow-mag:0 0 22px rgba(255,45,126,.55), 0 0 4px rgba(255,45,126,.8);
+  --glow-cyan:0 0 22px rgba(33,230,255,.45), 0 0 4px rgba(33,230,255,.7);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:"Space Mono",ui-monospace,monospace;
+  background:var(--void);
+  color:var(--white);
+  min-height:100dvh;
+  overflow-x:hidden;
+  line-height:1.6;
+  position:relative;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* ---------- atmosphere layers ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+
+/* deep radial glow */
+.bg__glow{
+  position:absolute;inset:-20%;
+  background:
+    radial-gradient(60% 50% at 50% 18%, rgba(255,45,126,.16), transparent 60%),
+    radial-gradient(70% 60% at 50% 92%, rgba(33,230,255,.14), transparent 62%),
+    radial-gradient(120% 90% at 50% 50%, transparent 40%, rgba(0,0,0,.7) 100%);
+}
+
+/* receding vector grid floor */
+.bg__grid{
+  position:absolute;left:-50%;right:-50%;bottom:-10%;height:62vh;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:46px 46px;
+  transform:perspective(340px) rotateX(74deg);
+  transform-origin:50% 100%;
+  mask-image:linear-gradient(to top, #000 5%, transparent 92%);
+  -webkit-mask-image:linear-gradient(to top, #000 5%, transparent 92%);
+  animation:grid-run 7s linear infinite;
+  opacity:.9;
+}
+@keyframes grid-run{from{background-position:0 0}to{background-position:0 46px}}
+
+/* horizon sun line */
+.bg__horizon{
+  position:absolute;left:50%;bottom:52vh;width:min(720px,86vw);height:2px;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,var(--mag),var(--cyan),transparent);
+  box-shadow:0 0 30px 4px rgba(255,45,126,.5);
+  opacity:.8;
+}
+
+/* scanlines */
+.bg__scan{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,.024) 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.5;
+}
+/* grain */
+.bg__grain{
+  position:absolute;inset:-200%;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 6s steps(6) infinite;
+}
+@keyframes grain{
+  0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-4%)}
+  60%{transform:translate(-2%,3%)}80%{transform:translate(3%,-2%)}100%{transform:translate(0,0)}
+}
+
+/* ---------- shell ---------- */
+.wrap{
+  position:relative;z-index:2;
+  min-height:100dvh;
+  display:flex;flex-direction:column;
+  padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));
+  max-width:960px;margin:0 auto;
+}
+
+/* top bar */
+.top{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+}
+.top .jp{font-family:"Zen Kaku Gothic New",sans-serif;letter-spacing:.1em;color:var(--dimmer)}
+.status{display:inline-flex;align-items:center;gap:8px;color:var(--cyan)}
+.status .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+  box-shadow:var(--glow-cyan);animation:blip 1.6s var(--ease) infinite}
+@keyframes blip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+
+/* main */
+main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:30px;padding:48px 0}
+
+.eyebrow{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--mag-soft);
+}
+.eyebrow .jp{font-family:"Zen Kaku Gothic New",sans-serif;color:var(--cyan);letter-spacing:.12em;font-size:13px}
+.eyebrow .bar{flex:1;height:1px;min-width:24px;background:linear-gradient(90deg,var(--line),transparent)}
+
+/* kicker (value line under wordmark) */
+.kicker{
+  font-family:"Chakra Petch",sans-serif;font-weight:600;
+  font-size:clamp(1rem,4.4vw,1.45rem);letter-spacing:.02em;color:var(--white);
+  margin-top:-6px;
+}
+
+/* hero headline */
+.headline{
+  font-family:"Chakra Petch",sans-serif;font-weight:700;
+  font-size:clamp(2.8rem,13vw,6.4rem);
+  line-height:.94;letter-spacing:-.01em;text-transform:uppercase;
+  color:var(--white);
+}
+.headline .b{display:block}
+.headline .glitch{position:relative;color:#fff}
+.headline .glitch[data-t]::before,
+.headline .glitch[data-t]::after{
+  content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden;
+}
+.headline .glitch[data-t]::before{color:var(--cyan);transform:translate(-2px,1px);clip-path:inset(0 0 62% 0);mix-blend-mode:screen;animation:gl1 3.6s steps(2) infinite}
+.headline .glitch[data-t]::after{color:var(--mag);transform:translate(2px,-1px);clip-path:inset(58% 0 0 0);mix-blend-mode:screen;animation:gl2 4.2s steps(2) infinite}
+@keyframes gl1{0%,90%,100%{transform:translate(-2px,1px)}92%{transform:translate(-6px,2px)}96%{transform:translate(3px,-1px)}}
+@keyframes gl2{0%,88%,100%{transform:translate(2px,-1px)}93%{transform:translate(6px,1px)}97%{transform:translate(-3px,2px)}}
+.headline .accent{color:var(--mag);text-shadow:var(--glow-mag)}
+.headline .stroke{
+  -webkit-text-stroke:1.5px var(--cyan);color:transparent;
+  text-shadow:0 0 18px rgba(33,230,255,.4);
+}
+
+.lede{
+  max-width:46ch;font-size:clamp(.95rem,3.6vw,1.06rem);color:var(--dim);line-height:1.75;
+}
+.lede b{color:var(--white);font-weight:400;border-bottom:1px solid var(--mag)}
+
+/* signal row */
+.signals{display:flex;gap:10px;flex-wrap:wrap}
+.chip{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--line);border-radius:999px;padding:7px 13px;
+  display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.015);
+}
+.chip svg{width:13px;height:13px;flex:none}
+.chip--cyan{color:var(--cyan);border-color:rgba(33,230,255,.3)}
+.chip--mag{color:var(--mag-soft);border-color:rgba(255,45,126,.3)}
+
+/* form */
+.cta{margin-top:6px}
+.cta__label{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--dimmer);margin-bottom:10px;display:block}
+.form{
+  display:flex;gap:10px;flex-wrap:wrap;max-width:520px;
+  border:1px solid var(--line);border-radius:4px;padding:7px;background:var(--panel);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:border-color .25s var(--ease),box-shadow .25s var(--ease);
+}
+.form:focus-within{border-color:rgba(255,45,126,.55);box-shadow:0 0 0 1px rgba(255,45,126,.25),0 0 28px rgba(255,45,126,.12)}
+.form input{
+  flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--white);
+  font-family:"Space Mono",monospace;font-size:16px;padding:12px 14px;letter-spacing:.02em;
+}
+.form input::placeholder{color:var(--dimmer)}
+.form button{
+  flex:none;cursor:pointer;border:0;border-radius:3px;
+  font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:13px;
+  letter-spacing:.16em;text-transform:uppercase;color:#0a0a12;
+  padding:0 20px;min-height:48px;
+  background:linear-gradient(180deg,var(--mag-soft),var(--mag));
+  box-shadow:0 0 0 1px rgba(255,45,126,.5),var(--glow-mag);
+  transition:transform .18s var(--ease),box-shadow .25s var(--ease),filter .2s var(--ease);
+  display:inline-flex;align-items:center;gap:9px;
+}
+.form button:hover{filter:brightness(1.08);box-shadow:0 0 0 1px rgba(255,45,126,.8),0 0 34px rgba(255,45,126,.6)}
+.form button:active{transform:translateY(1px)}
+.form button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.form input:focus-visible{outline:none}
+
+.note{margin-top:12px;font-size:11.5px;color:var(--dimmer);letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.note .ok{color:var(--cyan)}
+.note.err{color:var(--red)}
+
+/* success state */
+.received{
+  display:none;align-items:center;gap:14px;max-width:520px;
+  border:1px solid rgba(33,230,255,.4);border-radius:4px;padding:18px 20px;
+  background:rgba(33,230,255,.05);color:var(--white);
+  animation:rise .5s var(--ease) both;
+}
+.received.show{display:flex}
+.received .mark{
+  width:34px;height:34px;flex:none;border-radius:50%;
+  border:1.5px solid var(--cyan);display:grid;place-items:center;color:var(--cyan);
+  box-shadow:var(--glow-cyan);
+}
+.received .mark svg{width:18px;height:18px}
+.received p{font-size:13.5px;line-height:1.5}
+.received p span{display:block;color:var(--dim);font-size:11.5px;letter-spacing:.1em;margin-top:3px;text-transform:uppercase}
+
+/* network ticker */
+.ticker{position:relative;z-index:2;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.ticker__row{display:flex;gap:0;width:max-content;animation:slide 28s linear infinite}
+.ticker__row span{
+  font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dim);padding:14px 26px;display:inline-flex;align-items:center;gap:26px;white-space:nowrap;
+}
+.ticker__row span::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--mag);box-shadow:var(--glow-mag)}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* footer */
+footer{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);padding-top:20px;
+}
+footer a{color:var(--cyan);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+footer a:hover{border-color:var(--cyan)}
+footer .sodax{color:var(--dim)}
+
+/* entrance */
+[data-rise]{opacity:0;transform:translateY(18px)}
+.go [data-rise]{animation:rise .8s var(--ease) forwards}
+.go [data-rise]{animation-delay:var(--d,0s)}
+@keyframes rise{to{opacity:1;transform:none}}
+
+@media (max-width:560px){
+  main{gap:24px;padding:30px 0}
+  .form button{width:100%;justify-content:center}
+  .form input{width:100%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+  [data-rise]{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="bg__glow"></div>
+  <div class="bg__horizon"></div>
+  <div class="bg__grid"></div>
+  <div class="bg__scan"></div>
+  <div class="bg__grain"></div>
+</div>
+
+<div class="wrap">
+
+  <header class="top" data-rise style="--d:.05s">
+    <span class="jp">分散資産回収プロトコル</span>
+    <span class="status"><span class="dot"></span>System&nbsp;·&nbsp;Assembling</span>
+  </header>
+
+  <main>
+    <div class="eyebrow" data-rise style="--d:.12s">
+      <span class="jp">クロスチェーン</span>
+      <span>Cross-chain consolidation</span>
+      <span class="bar"></span>
+    </div>
+
+    <h1 class="headline">
+      <span class="b stroke" data-rise style="--d:.22s">Just</span>
+      <span class="b glitch" data-t="Sweep" data-rise style="--d:.30s">Sweep</span>
+      <span class="b accent" data-rise style="--d:.38s">It.</span>
+    </h1>
+
+    <p class="kicker" data-rise style="--d:.44s">All your crypto. One sweep.</p>
+
+    <p class="lede" data-rise style="--d:.50s">
+      Tiny balances stranded across <b>18 networks</b> — every EVM chain and Solana.
+      Soon you'll pull every fragment into <b>one token, one chain, one tap.</b>
+      No more dust. No more dead wallets.
+    </p>
+
+    <div class="signals" data-rise style="--d:.54s">
+      <span class="chip chip--cyan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3v18" stroke-linecap="round"/></svg>
+        EVM ×7 + Solana
+      </span>
+      <span class="chip chip--mag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>
+        Powered by SODAX
+      </span>
+      <span class="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Non-custodial
+      </span>
+    </div>
+
+    <div class="cta" data-rise style="--d:.62s">
+      <label class="cta__label" for="email">▸ Request early access</label>
+      <form class="form" id="waitlist" novalidate>
+        <input id="email" type="email" name="email" inputmode="email" autocomplete="email"
+               placeholder="operator@network.eth" aria-label="Email address" required />
+        <button type="submit">
+          Join the list
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="15" height="15"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <p class="note" id="note"><span class="ok">●</span>&nbsp;No spam. One transmission when the gates open.</p>
+
+      <div class="received" id="received" role="status" aria-live="polite">
+        <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <p>Transmission received.<span id="received-email">You're on the early-access list.</span></p>
+      </div>
+    </div>
+  </main>
+
+  <div class="ticker" data-rise style="--d:.72s" aria-hidden="true">
+    <div class="ticker__row" id="ticker"></div>
+  </div>
+
+  <footer data-rise style="--d:.8s">
+    <span class="sodax">Built on the SODAX cross-network layer</span>
+    <span>© 2026 · <a href="#" id="year-link">JUST SWEEP IT</a></span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // staggered entrance
+  requestAnimationFrame(()=>document.body.classList.add('go'));
+
+  // network ticker (doubled for seamless loop)
+  var nets = ['Ethereum','Base','Arbitrum','Optimism','Polygon','BSC','Avalanche','Solana'];
+  var row = document.getElementById('ticker');
+  var html = nets.map(n=>'<span>'+n+'</span>').join('');
+  row.innerHTML = html + html;
+
+  // waitlist (client-side mock — wire to a real endpoint before launch)
+  var form = document.getElementById('waitlist');
+  var input = document.getElementById('email');
+  var note = document.getElementById('note');
+  var received = document.getElementById('received');
+  var receivedEmail = document.getElementById('received-email');
+  var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var val = (input.value||'').trim();
+    if(!re.test(val)){
+      note.classList.add('err');
+      note.innerHTML = '✕&nbsp;That address looks malformed — try again.';
+      input.focus();
+      return;
+    }
+    // success — store locally so a refresh remembers; swap for POST to your provider.
+    try{ localStorage.setItem('waitlist_email', val); }catch(_){}
+    form.style.display = 'none';
+    note.style.display = 'none';
+    receivedEmail.textContent = val + ' is on the early-access list.';
+    received.classList.add('show');
+  });
+
+  input.addEventListener('input', function(){
+    if(note.classList.contains('err')){
+      note.classList.remove('err');
+      note.innerHTML = '<span class="ok">●</span>&nbsp;No spam. One transmission when the gates open.';
+    }
+  });
+})();
+</script>
+</body>
+</html>
