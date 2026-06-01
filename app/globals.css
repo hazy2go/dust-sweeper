@@ -146,3 +146,10 @@ button{font:inherit;cursor:pointer}
 .frow--rec{grid-template-columns:1fr 1fr 1fr auto}
 .frow:last-child{border-bottom:0}
 .sweep section{display:block}
+
+/* demo mode */
+.demo-banner{border:1px dashed var(--jade);border-radius:5px;padding:11px 16px;font-size:13px;
+  background:rgba(63,125,110,.07);color:var(--ink-dim);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.demo-banner__exit{margin-left:auto;border:1px solid var(--jade);background:transparent;color:var(--jade);
+  border-radius:3px;padding:5px 12px;font-size:12px;font-weight:700}
+.sweep__hintbox{display:flex;flex-direction:column;gap:14px;align-items:flex-start}

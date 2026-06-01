@@ -14,6 +14,7 @@ import { useDiscoverBalances } from '@/hooks/useDiscoverBalances';
 import { useSweepEngine } from '@/hooks/useSweepEngine';
 import type { SweepRequest } from '@/lib/engine/execute-one';
 import { chainMeta } from '@/lib/sodax/chains';
+import { DEMO_BALANCES, DEMO_EVM_ADDRESS, DEMO_SOL_ADDRESS } from '@/lib/balances/demo';
 import { usd } from '@/lib/format';
 
 export default function SweepPage() {
@@ -27,7 +28,8 @@ export default function SweepPage() {
   const discovery = useDiscoverBalances(evmAddress, solAddress);
   const engine = useSweepEngine();
 
-  const defaultOutput = useMemo<OutputChoice>(() => {
+  const [demoMode, setDemoMode] = useState(false);
+  const [output, setOutput] = useState<OutputChoice>(() => {
     const base = ChainKeys.BASE_MAINNET;
     let toks: readonly { address: string; symbol: string }[] = [];
     try {
@@ -37,19 +39,17 @@ export default function SweepPage() {
     }
     const usdc = toks.find((t) => t.symbol.toUpperCase() === 'USDC') ?? toks[0];
     return { chainKey: base, tokenAddress: usdc?.address ?? '', tokenSymbol: usdc?.symbol ?? 'USDC' };
-  }, [sodax]);
-
-  const [output, setOutput] = useState<OutputChoice>(defaultOutput);
+  });
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showDust, setShowDust] = useState(false);
 
-  const balances = discovery.data?.balances ?? [];
+  const balances = demoMode ? DEMO_BALANCES : discovery.data?.balances ?? [];
+  const hasResults = demoMode || Boolean(discovery.data);
 
   useEffect(() => {
-    if (discovery.data) {
-      setSelected(new Set(discovery.data.balances.filter((b) => b.sweepable).map((b) => b.id)));
-    }
-  }, [discovery.data]);
+    const src = demoMode ? DEMO_BALANCES : discovery.data?.balances;
+    if (src) setSelected(new Set(src.filter((b) => b.sweepable).map((b) => b.id)));
+  }, [demoMode, discovery.data]);
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -58,16 +58,22 @@ export default function SweepPage() {
       return next;
     });
 
+  const addrFor = (family?: string) => {
+    const isSol = family === 'SOLANA';
+    if (demoMode) return isSol ? DEMO_SOL_ADDRESS : DEMO_EVM_ADDRESS;
+    return isSol ? solAddress : evmAddress;
+  };
+
   const requests = useMemo<SweepRequest[]>(() => {
     const outMeta = chainMeta(output.chainKey);
-    const dstAddress = outMeta?.family === 'SOLANA' ? solAddress : evmAddress;
+    const dstAddress = addrFor(outMeta?.family);
     if (!dstAddress || !output.tokenAddress) return [];
     const out: SweepRequest[] = [];
     for (const b of balances) {
       if (!selected.has(b.id)) continue;
       const meta = chainMeta(b.chainKey);
       const isEvm = meta?.family === 'EVM';
-      const srcAddress = isEvm ? evmAddress : solAddress;
+      const srcAddress = addrFor(meta?.family);
       if (!srcAddress) continue;
       out.push({
         id: b.id,
@@ -83,7 +89,8 @@ export default function SweepPage() {
       });
     }
     return out;
-  }, [balances, selected, output, evmAddress, solAddress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balances, selected, output, evmAddress, solAddress, demoMode]);
 
   const totals = useMemo(() => {
     const picked = balances.filter((b) => selected.has(b.id));
@@ -108,32 +115,57 @@ export default function SweepPage() {
 
       <RecoveryBanner addresses={[evmAddress, solAddress]} />
 
-      <section className="sweep__connect">
-        <ConnectBar />
-      </section>
-
-      {!connected && (
-        <p className="sweep__hint">Connect an EVM and/or Solana wallet to scan for consolidatable balances.</p>
+      {demoMode && (
+        <div className="demo-banner">
+          Demo mode — sample balances, simulated sweeps. No wallet, no real transactions.{' '}
+          <button
+            className="demo-banner__exit"
+            onClick={() => {
+              setDemoMode(false);
+              engine.reset();
+            }}
+          >
+            Exit demo
+          </button>
+        </div>
       )}
 
-      {connected && !executing && (
+      {!demoMode && (
+        <section className="sweep__connect">
+          <ConnectBar />
+        </section>
+      )}
+
+      {!connected && !demoMode && !executing && (
+        <div className="sweep__hintbox">
+          <p className="sweep__hint">Connect an EVM and/or Solana wallet to scan for consolidatable balances.</p>
+          <button className="btn" onClick={() => setDemoMode(true)}>
+            Try a demo — no wallet needed
+          </button>
+        </div>
+      )}
+
+      {(connected || demoMode) && !executing && (
         <>
           <div className="sweep__scanbar">
-            <button className="btn" onClick={() => discovery.refetch()} disabled={discovery.isFetching}>
-              {discovery.isFetching ? 'Scanning…' : discovery.data ? 'Rescan' : 'Scan wallets'}
-            </button>
+            {!demoMode && (
+              <button className="btn" onClick={() => discovery.refetch()} disabled={discovery.isFetching}>
+                {discovery.isFetching ? 'Scanning…' : discovery.data ? 'Rescan' : 'Scan wallets'}
+              </button>
+            )}
             <OutputSelector value={output} onChange={setOutput} />
           </div>
 
-          {discovery.isError && <p className="sweep__err">{(discovery.error as Error).message}</p>}
-
-          {discovery.data && discovery.data.errors.length > 0 && (
+          {!demoMode && discovery.isError && (
+            <p className="sweep__err">{(discovery.error as Error).message}</p>
+          )}
+          {!demoMode && discovery.data && discovery.data.errors.length > 0 && (
             <p className="sweep__warn">
               Some chains couldn’t be scanned: {discovery.data.errors.map((e) => e.chainKey).join(', ')}
             </p>
           )}
 
-          {discovery.data && (
+          {hasResults && (
             <>
               <BalanceTable
                 balances={balances}
@@ -164,7 +196,7 @@ export default function SweepPage() {
                 <button
                   className="btn btn--primary"
                   disabled={requests.length === 0 || engine.running}
-                  onClick={() => engine.start(requests)}
+                  onClick={() => (demoMode ? engine.startDemo(requests) : engine.start(requests))}
                 >
                   Sweep {totals.count} into {output.tokenSymbol} →
                 </button>
@@ -182,10 +214,10 @@ export default function SweepPage() {
               className="btn"
               onClick={() => {
                 engine.reset();
-                discovery.refetch();
+                if (!demoMode) discovery.refetch();
               }}
             >
-              Done — scan again
+              Done — {demoMode ? 'run again' : 'scan again'}
             </button>
           )}
         </>

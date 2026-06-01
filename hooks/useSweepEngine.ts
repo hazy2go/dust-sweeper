@@ -14,7 +14,7 @@ export function useSweepEngine() {
   const { sodax } = useSodaxContext();
   const evmProvider = useWalletProvider({ xChainType: 'EVM' });
   const solProvider = useWalletProvider({ xChainType: 'SOLANA' });
-  const { statuses, running, current, init, run, reset } = useSweepQueue();
+  const { statuses, running, current, init, run, runDemo, reset } = useSweepQueue();
 
   const start = useCallback(
     (reqs: SweepRequest[]) => {
@@ -25,5 +25,13 @@ export function useSweepEngine() {
     [sodax, evmProvider, solProvider, init, run],
   );
 
-  return { statuses, running, current, start, reset };
+  const startDemo = useCallback(
+    (reqs: SweepRequest[]) => {
+      init(reqs);
+      void runDemo(reqs);
+    },
+    [init, runDemo],
+  );
+
+  return { statuses, running, current, start, startDemo, reset };
 }
