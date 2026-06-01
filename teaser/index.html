@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>JUST SWEEP IT — cross-chain consolidation · built on SODAX</title>
 <meta name="description" content="Your crypto is scattered across 18 networks. Soon: one sweep brings every fragment home. EVM + Solana. Built on SODAX. Join the early-access list." />
-<meta name="theme-color" content="#0c0b0d" />
+<meta name="theme-color" content="#ece3cf" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="JUST SWEEP IT — one sweep, every chain" />
 <meta property="og:description" content="Tiny balances stranded across 18 networks. Soon you sweep them all into one token, one chain, one tap. Built on SODAX." />
@@ -16,34 +16,40 @@
 
 <style>
 :root{
-  --ink:#0c0b0d;        /* sumi black */
-  --ink-2:#121116;
-  --paper:#ece7da;      /* washi cream */
-  --paper-dim:#8e897b;
-  --paper-faint:#56524a;
-  --shu:#e0413f;        /* vermilion (朱) */
-  --shu-soft:#ec5b56;
-  --line:rgba(236,231,218,.13);
+  /* warm washi paper, sumi ink, vermilion — light theme */
+  --paper:#ece3cf;        /* aged washi */
+  --paper-hi:#f3ecda;     /* lit paper */
+  --ink:#27211a;          /* warm sumi */
+  --ink-dim:#6f6553;      /* secondary */
+  --ink-faint:#a89a7e;    /* tertiary / hairlines */
+  --shu:#c1432f;          /* warm vermilion (朱) */
+  --shu-soft:#d4604a;
+  --line:rgba(39,33,26,.16);
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{
   font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
-  background:var(--ink);color:var(--paper);
+  color:var(--ink);
+  background:
+    radial-gradient(135% 105% at 50% 0%, var(--paper-hi), var(--paper) 58%, #e3d8bf 100%);
   min-height:100dvh;overflow-x:hidden;line-height:1.7;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
 
-/* atmosphere — restrained */
+/* atmosphere — restrained, paper-warm */
 .bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .bg__vig{position:absolute;inset:0;
-  background:radial-gradient(130% 100% at 50% 30%, transparent 45%, rgba(0,0,0,.55) 100%)}
-/* huge brush kanji watermark — 掃 (to sweep) */
+  background:radial-gradient(125% 100% at 50% 28%, transparent 52%, rgba(120,96,56,.14) 100%)}
+/* faint paper grain */
+.bg__vig::after{content:"";position:absolute;inset:-150%;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")}
+/* huge brush kanji watermark — 掃 (to sweep), ink bleed on paper */
 .bg__kanji{
   position:absolute;right:-6vw;top:50%;transform:translateY(-50%);
   font-family:"Yuji Mai",serif;font-size:min(112vh,96vw);line-height:.8;
-  color:var(--paper);opacity:.045;user-select:none;
+  color:var(--ink);opacity:.06;user-select:none;
 }
 /* faint vertical hairline (margin rule, like ruled letter paper) */
 .bg__rule{position:absolute;left:max(28px,6vw);top:0;bottom:0;width:1px;
@@ -56,7 +62,7 @@ body{
 }
 .kana-v span{
   writing-mode:vertical-rl;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;
-  font-size:13px;letter-spacing:.42em;color:var(--paper-faint);
+  font-size:13px;letter-spacing:.42em;color:var(--ink-faint);
 }
 
 .wrap{
@@ -73,22 +79,22 @@ body{
   display:grid;place-items:center;transform:rotate(-3deg);
   box-shadow:0 2px 16px rgba(224,65,63,.28);
 }
-.seal span{font-family:"Yuji Mai",serif;font-size:30px;color:#1a0d0c;line-height:1;margin-top:2px}
-.top__meta{text-align:right;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper-dim)}
-.top__meta .jp{display:block;font-family:"Zen Kaku Gothic New",sans-serif;color:var(--paper-faint);
+.seal span{font-family:"Yuji Mai",serif;font-size:30px;color:var(--paper-hi);line-height:1;margin-top:2px}
+.top__meta{text-align:right;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim)}
+.top__meta .jp{display:block;font-family:"Zen Kaku Gothic New",sans-serif;color:var(--ink-faint);
   letter-spacing:.22em;text-transform:none;font-size:11px;margin-bottom:3px}
 
 /* main */
 main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:34px;padding:56px 0}
 
 .eyebrow{display:flex;align-items:baseline;gap:14px;font-size:12px;letter-spacing:.3em;
-  text-transform:uppercase;color:var(--paper-dim)}
+  text-transform:uppercase;color:var(--ink-dim)}
 .eyebrow .jp{font-family:"Zen Kaku Gothic New",sans-serif;color:var(--shu-soft);
   letter-spacing:.16em;text-transform:none;font-size:14px}
 
 .wordmark{
   font-family:"Shippori Mincho",serif;font-weight:600;
-  font-size:clamp(3rem,15vw,7rem);line-height:.96;letter-spacing:-.01em;color:var(--paper);
+  font-size:clamp(3rem,15vw,7rem);line-height:.96;letter-spacing:-.01em;color:var(--ink);
 }
 .wordmark .b{display:block}
 .wordmark .it{font-style:italic;color:var(--shu)}
@@ -96,10 +102,10 @@ main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:34px;p
 
 .rule{width:64px;height:2px;background:var(--shu);margin:2px 0}
 
-.lede{max-width:48ch;font-size:clamp(1rem,3.6vw,1.12rem);color:var(--paper-dim);line-height:1.8}
-.lede b{color:var(--paper);font-weight:500}
+.lede{max-width:48ch;font-size:clamp(1rem,3.6vw,1.12rem);color:var(--ink-dim);line-height:1.8}
+.lede b{color:var(--ink);font-weight:500}
 
-.meta-row{display:flex;gap:10px 26px;flex-wrap:wrap;font-size:12.5px;letter-spacing:.04em;color:var(--paper-faint)}
+.meta-row{display:flex;gap:10px 26px;flex-wrap:wrap;font-size:12.5px;letter-spacing:.04em;color:var(--ink-faint)}
 .meta-row span{display:inline-flex;align-items:center;gap:9px}
 .meta-row .tick{width:5px;height:5px;border-radius:50%;background:var(--shu);flex:none}
 
@@ -107,13 +113,13 @@ main{flex:1;display:flex;flex-direction:column;justify-content:center;gap:34px;p
 .soon{display:inline-flex;align-items:baseline;gap:16px}
 .soon__jp{font-family:"Shippori Mincho",serif;font-weight:600;font-size:clamp(1.3rem,5vw,1.7rem);
   color:var(--shu);letter-spacing:.08em}
-.soon__en{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--paper-dim)}
+.soon__en{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-dim)}
 
 /* footer */
 footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-faint);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);
   padding-top:24px;border-top:1px solid var(--line)}
-footer .jp{font-family:"Zen Kaku Gothic New",sans-serif;text-transform:none;letter-spacing:.1em;color:var(--paper-dim)}
+footer .jp{font-family:"Zen Kaku Gothic New",sans-serif;text-transform:none;letter-spacing:.1em;color:var(--ink-dim)}
 
 /* entrance */
 [data-rise]{opacity:0;transform:translateY(16px)}
