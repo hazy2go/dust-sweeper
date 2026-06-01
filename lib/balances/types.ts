@@ -20,6 +20,7 @@ export interface FeeBreakdownUsd {
 
 /** A balance enriched with price, support status, and sweep classification. */
 export interface EnrichedBalance extends RawBalance {
+  id: string; // `${chainKey}:${address.toLowerCase()}`
   amount: number; // human-readable float
   usdValue: number | null; // null when unpriced
   supported: boolean;

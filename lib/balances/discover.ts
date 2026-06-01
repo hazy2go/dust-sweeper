@@ -63,6 +63,7 @@ export async function discover(input: DiscoverInput): Promise<DiscoveryResponse>
     const cls = classify(true, usdValue, flat);
     return {
       ...r,
+      id: `${r.chainKey}:${r.address.toLowerCase()}`,
       amount,
       usdValue,
       supported: true,
