@@ -132,13 +132,18 @@ export function Landing() {
         </div>
       </section>
 
-      {/* chain marquee */}
+      {/* chain marquee — two identical sets; the track animates exactly one
+          set-width (-50%), so the loop point is invisible */}
       <section className="lp__marquee" aria-label="Supported networks">
         <div className="lp__marqueetrack">
-          {[...CHAINS, ...CHAINS].map((c, i) => (
-            <span key={`${c.name}:${i}`} className="lp__pill">
-              <i style={{ background: c.dot }} /> {c.name}
-            </span>
+          {[0, 1].map((set) => (
+            <div key={set} className="lp__marqueeset" aria-hidden={set === 1}>
+              {CHAINS.map((c) => (
+                <span key={`${set}:${c.name}`} className="lp__pill">
+                  <i style={{ background: c.dot }} /> {c.name}
+                </span>
+              ))}
+            </div>
           ))}
         </div>
       </section>
@@ -163,16 +168,25 @@ export function Landing() {
 
         <div className="lp__frags" aria-hidden>
           <motion.div className="lp__frag" style={{ y: floatA }}>
-            <b>0.0021 ETH</b>
-            <span>Base · $5.41</span>
+            <img src="/frag-eth.jpg" alt="" loading="lazy" />
+            <div>
+              <b>0.0021 ETH</b>
+              <span>Base · $5.41</span>
+            </div>
           </motion.div>
           <motion.div className="lp__frag lp__frag--b" style={{ y: floatB }}>
-            <b>3.2 MATIC</b>
-            <span>Polygon · $1.87</span>
+            <img src="/frag-matic.jpg" alt="" loading="lazy" />
+            <div>
+              <b>3.2 MATIC</b>
+              <span>Polygon · $1.87</span>
+            </div>
           </motion.div>
           <motion.div className="lp__frag lp__frag--c" style={{ y: floatC }}>
-            <b>0.048 SOL</b>
-            <span>Solana · $6.62</span>
+            <img src="/frag-sol.jpg" alt="" loading="lazy" />
+            <div>
+              <b>0.048 SOL</b>
+              <span>Solana · $6.62</span>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -200,21 +214,27 @@ export function Landing() {
             {
               n: '01',
               t: 'Scan',
+              img: '/step-scan.jpg',
               d: 'Connect an EVM wallet, a Solana wallet, or both. We sweep every supported network for balances worth moving — and tell you honestly which dust isn’t.',
             },
             {
               n: '02',
               t: 'Select',
+              img: '/step-select.jpg',
               d: 'Pick the fragments, pick one destination token on one chain. You see value, fees, and exactly how many signatures before anything happens.',
             },
             {
               n: '03',
               t: 'Sweep',
+              img: '/step-sweep.jpg',
               d: 'A sequential queue walks each token home via SODAX intents. One failure never stops the rest — and anything stuck is recoverable, always.',
             },
           ].map((s) => (
             <motion.div key={s.n} variants={rise} className="lp__step">
-              <span className="lp__stepnum serif">{s.n}</span>
+              <div className="lp__stepimg">
+                <img src={s.img} alt="" loading="lazy" />
+                <span className="lp__stepnum serif">{s.n}</span>
+              </div>
               <h3 className="serif">{s.t}</h3>
               <p>{s.d}</p>
             </motion.div>
