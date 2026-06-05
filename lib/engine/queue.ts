@@ -4,8 +4,13 @@ import { executeOne, type SweepRequest, type Patch } from './execute-one';
 import type { TokenSweepState } from './state-machine';
 import { markInflight, clearInflight } from './persistence';
 
-/** Resolves the SDK wallet provider for a given sweep (by source-chain family). */
-export type ProviderResolver = (req: SweepRequest) => unknown;
+/**
+ * Resolves the SDK wallet provider for a given sweep (by source-chain family).
+ * Async: after a page reload the SDK restores the connected *address* before it
+ * finishes rebuilding the signing client, so the resolver may need to wait for
+ * the provider to appear instead of failing the whole batch instantly.
+ */
+export type ProviderResolver = (req: SweepRequest) => Promise<unknown> | unknown;
 
 /**
  * Ensures the wallet is on the request's source network before executing.
@@ -66,12 +71,12 @@ export const useSweepQueue = create<QueueState>((set, get) => {
           continue;
         }
 
-        const provider = resolveProvider(req);
+        const provider = await resolveProvider(req);
         if (!provider) {
           patch(req.id, {
             phase: 'failed',
             failedAt: 'wallet',
-            error: 'No connected wallet for this chain',
+            error: `${req.isEvm ? 'EVM' : 'Solana'} wallet not ready — reconnect it and retry`,
             recoverable: false,
           });
           continue; // one token's failure never aborts the batch

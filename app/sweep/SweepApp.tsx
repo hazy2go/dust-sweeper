@@ -124,6 +124,13 @@ function SweepView() {
 
   const executing = Object.keys(engine.statuses).length > 0;
 
+  // every wallet family the selected requests actually need has a live signing client
+  const walletsReadyForSweep = useMemo(() => {
+    const needsEvm = requests.some((r) => r.isEvm);
+    const needsSol = requests.some((r) => !r.isEvm);
+    return (!needsEvm || engine.evmReady) && (!needsSol || engine.solReady);
+  }, [requests, engine.evmReady, engine.solReady]);
+
   return (
     <main className="sweep">
       <header className="sweep__top">
@@ -215,9 +222,12 @@ function SweepView() {
                 <p className="summary__sigs">
                   Up to <b>{totals.signatures}</b> wallet signatures — one token at a time, in sequence.
                 </p>
+                {!demoMode && !walletsReadyForSweep && requests.length > 0 && (
+                  <p className="sweep__warn">Waking your wallet&rsquo;s signing client… one moment.</p>
+                )}
                 <button
                   className="btn btn--primary"
-                  disabled={requests.length === 0 || engine.running}
+                  disabled={requests.length === 0 || engine.running || (!demoMode && !walletsReadyForSweep)}
                   onClick={() => setConfirming(true)}
                 >
                   Sweep {totals.count} into {output.tokenSymbol} →

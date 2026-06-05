@@ -72,7 +72,19 @@ export function useSweepEngine() {
   const start = useCallback(
     (reqs: SweepRequest[]) => {
       init(reqs);
-      const resolveProvider = (req: SweepRequest) => (req.isEvm ? evmRef.current : solRef.current);
+      // Wait briefly for the signing client: after a reload the address is
+      // restored before the provider finishes rebuilding (wagmi walletClient
+      // resolves async) — failing instantly here killed whole batches.
+      const resolveProvider = async (req: SweepRequest) => {
+        const read = () => (req.isEvm ? evmRef.current : solRef.current);
+        const deadline = Date.now() + 7_000;
+        let p = read();
+        while (!p && Date.now() < deadline) {
+          await sleep(200);
+          p = read();
+        }
+        return p;
+      };
       void run(sodax, resolveProvider, ensureChain, reqs);
     },
     [sodax, init, run, ensureChain],
@@ -86,5 +98,15 @@ export function useSweepEngine() {
     [init, runDemo],
   );
 
-  return { statuses, running, current, start, startDemo, reset };
+  return {
+    statuses,
+    running,
+    current,
+    start,
+    startDemo,
+    reset,
+    /** Signing clients ready (address can be restored before these are). */
+    evmReady: Boolean(evmProvider),
+    solReady: Boolean(solProvider),
+  };
 }
