@@ -12,6 +12,7 @@ import { chainMeta } from '@/lib/sodax/chains';
 import { PARTNER_SONIC_ADDRESS } from '@/lib/config';
 import { amt, shorten } from '@/lib/format';
 import { Providers } from '@/providers/providers';
+import { WalletsReady } from '@/components/WalletsReady';
 
 const ZERO = '0x0000000000000000000000000000000000000000';
 
@@ -19,7 +20,9 @@ const ZERO = '0x0000000000000000000000000000000000000000';
 export default function FeesApp() {
   return (
     <Providers>
-      <FeesView />
+      <WalletsReady>
+        <FeesView />
+      </WalletsReady>
     </Providers>
   );
 }

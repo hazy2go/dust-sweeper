@@ -18,6 +18,7 @@ import { chainMeta, chainOrderIndex } from '@/lib/sodax/chains';
 import { DEMO_BALANCES, DEMO_EVM_ADDRESS, DEMO_SOL_ADDRESS } from '@/lib/balances/demo';
 import { usd } from '@/lib/format';
 import { Providers } from '@/providers/providers';
+import { WalletsReady } from '@/components/WalletsReady';
 
 /**
  * The full dapp island — Providers (and with them the entire SODAX SDK +
@@ -27,7 +28,9 @@ import { Providers } from '@/providers/providers';
 export default function SweepApp() {
   return (
     <Providers>
-      <SweepView />
+      <WalletsReady>
+        <SweepView />
+      </WalletsReady>
     </Providers>
   );
 }
