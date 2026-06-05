@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useInView, type Variants } from 'motion/react';
 import { DustCanvas } from './DustCanvas';
+import { ScrollVideo } from './ScrollVideo';
 
 const CHAINS = [
   { name: 'Ethereum', dot: '#8a93ff' },
@@ -53,10 +54,13 @@ function CountUp({ to, suffix = '', decimals = 0 }: { to: number; suffix?: strin
 
 export function Landing() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroFade = useTransform(heroP, [0, 0.85], [1, 0]);
-  const heroLift = useTransform(heroP, [0, 1], ['0%', '-18%']);
-  const kanjiDrift = useTransform(heroP, [0, 1], ['0%', '26%']);
+  // the hero is a 260svh pinned stage: scrolling it scrubs the video and
+  // gradually releases the copy
+  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ['start start', 'end end'] });
+  const heroFade = useTransform(heroP, [0.42, 0.78], [1, 0]);
+  const heroLift = useTransform(heroP, [0, 1], ['0%', '-34%']);
+  const kanjiDrift = useTransform(heroP, [0, 1], ['0%', '30%']);
+  const hintFade = useTransform(heroP, [0, 0.18], [1, 0]);
 
   const scatterRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: scatterP } = useScroll({ target: scatterRef, offset: ['start end', 'end start'] });
@@ -86,14 +90,17 @@ export function Landing() {
         </div>
       </motion.nav>
 
-      {/* hero */}
+      {/* hero — pinned scroll stage, video scrubs with the wheel */}
       <section ref={heroRef} className="lp__hero">
-        <DustCanvas />
-        <motion.div className="lp__kanji brush" style={{ y: kanjiDrift }} aria-hidden>
-          掃
-        </motion.div>
+        <div className="lp__herosticky">
+          <ScrollVideo src="/hero.mp4" poster="/hero-poster.jpg" />
+          <div className="lp__heroveil" aria-hidden />
+          <DustCanvas />
+          <motion.div className="lp__kanji brush" style={{ y: kanjiDrift }} aria-hidden>
+            掃
+          </motion.div>
 
-        <motion.div className="lp__heroinner" style={{ opacity: heroFade, y: heroLift }}>
+          <motion.div className="lp__heroinner" style={{ opacity: heroFade, y: heroLift }}>
           <motion.div variants={stagger} initial="hidden" animate="show">
             <motion.span variants={rise} className="lp__chip">
               <span className="lp__chipdot" /> 8 networks · built on SODAX
@@ -117,10 +124,11 @@ export function Landing() {
               </Link>
             </motion.div>
           </motion.div>
-        </motion.div>
+          </motion.div>
 
-        <div className="lp__scrollhint" aria-hidden>
-          <span />
+          <motion.div className="lp__scrollhint" style={{ opacity: hintFade }} aria-hidden>
+            <span />
+          </motion.div>
         </div>
       </section>
 

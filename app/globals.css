@@ -234,7 +234,9 @@ main{position:relative;z-index:1}
 .lp{overflow-x:clip}
 
 /* nav */
-.lp__nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:40;
+/* NOTE: centered with inset+margin, NOT translateX — motion animates `transform`
+   on this element and would clobber a translate-based centering (nav slid off-screen). */
+.lp__nav{position:fixed;top:14px;left:0;right:0;margin-inline:auto;z-index:40;
   width:min(1060px,calc(100% - 28px));display:flex;align-items:center;justify-content:space-between;
   padding:10px 18px;border-radius:16px;border:1px solid var(--line);
   background:rgba(10,14,24,.55);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
@@ -246,13 +248,19 @@ main{position:relative;z-index:1}
   border-radius:10px;font-weight:700;box-shadow:0 2px 18px rgba(255,77,54,.4)}
 .lp__navcta:hover{box-shadow:0 4px 26px rgba(255,77,54,.55);color:#fff}
 
-/* hero */
-.lp__hero{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;
+/* hero — 260svh pinned scroll stage; the inner stays stuck while the
+   scroll position scrubs the background video back and forth */
+.lp__hero{position:relative;height:260svh}
+.lp__herosticky{position:sticky;top:0;height:100svh;display:flex;align-items:center;justify-content:center;
   padding:110px 24px 80px;overflow:clip}
-.dust{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.lp__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.lp__heroveil{position:absolute;inset:0;z-index:1;background:
+  radial-gradient(90% 72% at 50% 44%, transparent 38%, rgba(6,8,15,.55) 100%),
+  linear-gradient(180deg, rgba(6,8,15,.6) 0%, rgba(6,8,15,.18) 28%, rgba(6,8,15,.22) 62%, var(--bg0) 99%)}
+.dust{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 .lp__kanji{position:absolute;right:-6vw;top:8%;font-size:min(86vh,72vw);line-height:.8;
-  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.07);z-index:0;user-select:none}
-.lp__heroinner{position:relative;z-index:2;max-width:880px;text-align:center}
+  color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.07);z-index:2;user-select:none}
+.lp__heroinner{position:relative;z-index:3;max-width:880px;text-align:center}
 .lp__chip{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-dim);border:1px solid var(--line);border-radius:999px;
   padding:8px 18px;background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
@@ -279,7 +287,8 @@ main{position:relative;z-index:1}
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
 .lp__btn--glass:hover{transform:translateY(-2px);background:var(--glass-hi)}
 .lp__btn--big{font-size:18px;padding:17px 38px}
-.lp__scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;
+/* centered with inset+margin (motion animates transform on this element too) */
+.lp__scrollhint{position:absolute;bottom:26px;left:0;right:0;margin-inline:auto;z-index:3;
   width:22px;height:36px;border:1.5px solid var(--line);border-radius:12px;display:flex;justify-content:center}
 .lp__scrollhint span{width:3px;height:8px;border-radius:2px;background:var(--ink-dim);margin-top:6px;
   animation:scrollnudge 1.8s ease-in-out infinite}
