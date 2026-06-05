@@ -7,6 +7,13 @@ import { markInflight, clearInflight } from './persistence';
 /** Resolves the SDK wallet provider for a given sweep (by source-chain family). */
 export type ProviderResolver = (req: SweepRequest) => unknown;
 
+/**
+ * Ensures the wallet is on the request's source network before executing.
+ * Calls `onSwitching` only when an actual switch is prompted; throws if the
+ * user declines. No-op for Solana (single network).
+ */
+export type ChainEnsurer = (req: SweepRequest, onSwitching: () => void) => Promise<void>;
+
 interface QueueState {
   statuses: Record<string, TokenSweepState>;
   running: boolean;
@@ -14,7 +21,7 @@ interface QueueState {
   /** Seed idle statuses for a planned batch. */
   init: (reqs: SweepRequest[]) => void;
   /** Run the batch sequentially (one wallet prompt at a time). */
-  run: (sodax: Sodax, resolveProvider: ProviderResolver, reqs: SweepRequest[]) => Promise<void>;
+  run: (sodax: Sodax, resolveProvider: ProviderResolver, ensureChain: ChainEnsurer, reqs: SweepRequest[]) => Promise<void>;
   /** Simulated run for Demo mode — no real transactions. */
   runDemo: (reqs: SweepRequest[]) => Promise<void>;
   reset: () => void;
@@ -38,12 +45,27 @@ export const useSweepQueue = create<QueueState>((set, get) => {
         ),
       }),
 
-    run: async (sodax, resolveProvider, reqs) => {
+    run: async (sodax, resolveProvider, ensureChain, reqs) => {
       if (get().running) return;
       set({ running: true });
 
       for (const req of reqs) {
         set({ current: req.id });
+
+        // Get the wallet on the right network first — the provider instance
+        // rebinds after a switch, so it must be resolved *after* this.
+        try {
+          await ensureChain(req, () => patch(req.id, { phase: 'switching' }));
+        } catch (e: any) {
+          patch(req.id, {
+            phase: 'failed',
+            failedAt: 'network-switch',
+            error: e?.message ?? 'Network switch was declined',
+            recoverable: false,
+          });
+          continue;
+        }
+
         const provider = resolveProvider(req);
         if (!provider) {
           patch(req.id, {
@@ -89,8 +111,14 @@ export const useSweepQueue = create<QueueState>((set, get) => {
     runDemo: async (reqs) => {
       if (get().running) return;
       set({ running: true });
+      let demoChain: string | undefined;
       for (const req of reqs) {
         set({ current: req.id });
+        if (req.isEvm && req.srcChainKey !== demoChain) {
+          patch(req.id, { phase: 'switching' });
+          await sleep(550);
+        }
+        demoChain = req.srcChainKey;
         patch(req.id, { phase: 'quoting' });
         await sleep(450);
         if (req.isEvm) {

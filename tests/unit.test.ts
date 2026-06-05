@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { classify, feeBreakdownUsd } from '@/lib/balances/viability';
 import { tokenKey } from '@/lib/sodax/swap-tokens';
 import { tokenId, isTerminal } from '@/lib/engine/state-machine';
+import { signaturesFor } from '@/lib/engine/execute-one';
+import { chainOrderIndex } from '@/lib/sodax/chains';
 import { VIABILITY_SAFETY_MARGIN, HARD_DUST_FLOOR_USD } from '@/lib/config';
 
 describe('viability.classify', () => {
@@ -60,5 +62,28 @@ describe('state machine', () => {
     expect(isTerminal('done')).toBe(true);
     expect(isTerminal('failed')).toBe(true);
     expect(isTerminal('swapping')).toBe(false);
+  });
+});
+
+describe('signature planning', () => {
+  it('EVM ERC-20 needs up to 2 signatures (approve + swap)', () => {
+    expect(signaturesFor({ isEvm: true, inputToken: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' })).toBe(2);
+  });
+  it('EVM native needs 1 (no approval)', () => {
+    expect(signaturesFor({ isEvm: true, inputToken: '0x0000000000000000000000000000000000000000' })).toBe(1);
+  });
+  it('Solana needs 1', () => {
+    expect(signaturesFor({ isEvm: false, inputToken: 'So11111111111111111111111111111111111111111' })).toBe(1);
+  });
+});
+
+describe('queue chain ordering', () => {
+  it('orders EVM chains in V1 order with Solana last', () => {
+    const keys = ['solana', '0x2105.base', 'ethereum', '0xa86a.avax'];
+    const sorted = [...keys].sort((a, b) => chainOrderIndex(a) - chainOrderIndex(b));
+    expect(sorted).toEqual(['ethereum', '0x2105.base', '0xa86a.avax', 'solana']);
+  });
+  it('unknown chains sink to the end', () => {
+    expect(chainOrderIndex('sui')).toBeGreaterThan(chainOrderIndex('solana'));
   });
 });

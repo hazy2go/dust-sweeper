@@ -1,5 +1,6 @@
 import type { Sodax, SpokeChainKey } from '@sodax/sdk';
 import { SLIPPAGE_BPS } from '@/lib/config';
+import { EVM_NATIVE_SENTINEL } from '@/lib/sodax/chains';
 import type { TokenSweepState } from './state-machine';
 
 export interface SweepRequest {
@@ -17,6 +18,12 @@ export interface SweepRequest {
 }
 
 export type Patch = Partial<TokenSweepState>;
+
+/** Signatures one sweep needs: EVM ERC-20 ≤ 2 (approve + swap), EVM native 1, Solana 1. */
+export function signaturesFor(req: Pick<SweepRequest, 'isEvm' | 'inputToken'>): number {
+  if (!req.isEvm) return 1;
+  return req.inputToken.toLowerCase() === EVM_NATIVE_SENTINEL ? 1 : 2;
+}
 
 function msg(err: unknown): string {
   if (err && typeof err === 'object' && 'message' in err) return String((err as any).message);

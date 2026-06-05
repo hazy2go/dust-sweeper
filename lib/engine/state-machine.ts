@@ -1,4 +1,4 @@
-export type SweepPhase = 'idle' | 'quoting' | 'approving' | 'swapping' | 'done' | 'failed';
+export type SweepPhase = 'idle' | 'switching' | 'quoting' | 'approving' | 'swapping' | 'done' | 'failed';
 
 export interface TokenSweepState {
   id: string;

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { Providers } from '@/providers/providers';
 import { Atmosphere } from '@/components/Atmosphere';
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <Atmosphere />
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );

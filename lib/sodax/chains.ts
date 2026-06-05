@@ -45,5 +45,16 @@ export function chainMeta(key: string): ChainMeta | undefined {
   return CHAIN_BY_KEY[key];
 }
 
+const CHAIN_ORDER: Record<string, number> = Object.fromEntries(V1_CHAINS.map((c, i) => [c.key, i]));
+
+/**
+ * Stable ordering for the sweep queue: EVM chains in V1 order, Solana last.
+ * Grouping same-chain sweeps back-to-back means one network-switch prompt
+ * per chain instead of one per token.
+ */
+export function chainOrderIndex(key: string): number {
+  return CHAIN_ORDER[key] ?? V1_CHAINS.length;
+}
+
 /** Sonic hub — needed for SDK config/relay even though users never connect a Sonic wallet. */
 export const SONIC = ChainKeys.SONIC_MAINNET;
