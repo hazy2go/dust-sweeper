@@ -14,7 +14,8 @@ const RPC = {
   base: process.env.NEXT_PUBLIC_BASE_RPC ?? 'https://mainnet.base.org',
   arbitrum: process.env.NEXT_PUBLIC_ARB_RPC ?? 'https://arb1.arbitrum.io/rpc',
   optimism: process.env.NEXT_PUBLIC_OP_RPC ?? 'https://mainnet.optimism.io',
-  polygon: process.env.NEXT_PUBLIC_POLYGON_RPC ?? 'https://polygon-rpc.com',
+  // polygon-rpc.com started returning 401s — publicnode is keyless and reliable
+  polygon: process.env.NEXT_PUBLIC_POLYGON_RPC ?? 'https://polygon-bor-rpc.publicnode.com',
   bsc: process.env.NEXT_PUBLIC_BSC_RPC ?? 'https://bsc-dataseed.binance.org',
   avax: process.env.NEXT_PUBLIC_AVAX_RPC ?? 'https://api.avax.network/ext/bc/C/rpc',
   solana: process.env.NEXT_PUBLIC_SOLANA_RPC ?? 'https://api.mainnet-beta.solana.com',
