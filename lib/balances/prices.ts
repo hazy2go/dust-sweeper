@@ -19,8 +19,9 @@ const SYMBOL_TO_ID: Record<string, string> = {
   SOL: 'solana',
   BNB: 'binancecoin',
   AVAX: 'avalanche-2',
-  POL: 'matic-network',
-  MATIC: 'matic-network',
+  // MATIC→POL migration: CoinGecko's old `matic-network` id now returns {}
+  POL: 'polygon-ecosystem-token',
+  MATIC: 'polygon-ecosystem-token',
 };
 
 interface CacheEntry {
