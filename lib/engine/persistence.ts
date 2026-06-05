@@ -50,3 +50,8 @@ export function clearInflight(owner: string, id: string) {
     read(owner).filter((r) => r.id !== id),
   );
 }
+
+/** Drop every marker for an owner — used after the hub scan confirms nothing is stuck. */
+export function clearAllInflight(owner: string) {
+  write(owner, []);
+}
